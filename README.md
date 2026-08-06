@@ -1,14 +1,14 @@
 # StockPilot
 
-StockPilot is a learning project focused on Python, data analysis, forecasting, inventory management, Git, databases, APIs, and web development.
+StockPilot analyzes historical sales data to support demand forecasting and inventory replenishment decisions.
 
-The goal is to analyze historical sales data, forecast future demand, and progressively build restocking recommendations for a store or inventory manager.
+The project focuses on a retail-style scenario where a store or inventory manager needs to understand demand patterns, anticipate future sales, and reduce the risk of stockouts or overstock.
 
 ## Dataset
 
-The project will use the Kaggle dataset "Store Item Demand Forecasting Challenge".
+The project uses the Kaggle dataset "Store Item Demand Forecasting Challenge".
 
-This dataset contains daily sales for multiple stores and items. It will be used as a realistic learning dataset, not as certified data from a real retail company.
+This dataset contains daily sales for multiple stores and items. It is treated as a realistic sales dataset for a retail inventory use case, not as certified data from a specific real-world company.
 
 The main available columns are:
 
@@ -17,20 +17,20 @@ The main available columns are:
 - item
 - sales
 
-Some information that would be useful in a real inventory management system is not available in the dataset, such as historical stock levels, prices, promotions, supplier lead times, storage costs, and past stockouts.
+Some information commonly used in inventory management is not available in the original dataset, such as historical stock levels, prices, promotions, supplier lead times, storage costs, and past stockouts.
 
-These missing business variables may be simulated in later versions of the project. Simulated data will be clearly separated from the original dataset.
+When needed, these business variables will be simulated and clearly separated from the original sales data.
 
 ## Version 1: Data Analysis
 
-The first version focuses only on understanding and exploring the dataset.
+The first version focuses on understanding and validating the sales dataset.
 
-Goals:
+Scope:
 
-- load the dataset
-- understand the files and columns
+- load the raw dataset
+- inspect files and columns
 - check missing values
 - check duplicates
 - identify the time period covered by the data
-- explore sales by store, item, and date
-- create simple visualizations
+- summarize sales by store, item, and date
+- create initial exploratory visualizations
