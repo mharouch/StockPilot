@@ -21,16 +21,9 @@ Some information commonly used in inventory management is not available in the o
 
 When needed, these business variables will be simulated and clearly separated from the original sales data.
 
-## Version 1: Data Analysis
+## Dataset Setup
 
-The first version focuses on understanding and validating the sales dataset.
+Raw data files must be downloaded manually from Kaggle and placed in the following local directory:
 
-Scope:
-
-- load the raw dataset
-- inspect files and columns
-- check missing values
-- check duplicates
-- identify the time period covered by the data
-- summarize sales by store, item, and date
-- create initial exploratory visualizations
+```text
+data/raw/
