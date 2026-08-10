@@ -23,8 +23,9 @@ def display_basic_information(sales):
     print("\nData types:")
     print(sales.dtypes)
 
+
 def display_quality_checks(sales):
-    """Displa the date range and basic data quality checks."""
+    """Display the date range and basic data quality checks."""
     start_date = sales["date"].min()
     end_date = sales["date"].max()
     missing_values = sales.isna().sum()
@@ -33,11 +34,12 @@ def display_quality_checks(sales):
     print("\nDate range:")
     print(f"{start_date.date()} to {end_date.date()}")
 
-    print ("\nMissing values:")
+    print("\nMissing values:")
     print(missing_values)
 
     print("\nDuplicate rows:")
     print(duplicate_rows)
+
 
 def main():
     sales = load_sales_data(DATA_PATH)
