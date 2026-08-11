@@ -88,6 +88,24 @@ The scope includes:
 
 Demand forecasting, inventory simulation, the dashboard, the database, and the API are outside the scope of Version 1.
 
+## Version 1 Results
+
+The dataset validation and exploratory analysis produced the following findings:
+
+- the dataset contains 913,000 daily sales records covering 10 stores and 50 items from 2013 to 2017
+- no missing values or duplicated rows were identified
+- Store 2 records the highest total sales, while Store 7 records the lowest
+- Items 15 and 28 record the highest total sales
+- daily sales show an overall upward trend across the five-year period
+- average sales follow a strong weekly pattern, with the lowest level on Monday and the highest on Sunday
+- average sales follow a strong annual pattern, generally increasing from January to July before declining during the second half of the year
+
+These findings describe the observed sales patterns but do not explain their business causes. The missing inventory, pricing, promotion, product, and store information limits the conclusions that can be drawn from the dataset.
+
+## Project Status
+
+Version 1 is complete. The next version will introduce a time-based training and test split, establish a simple forecasting baseline, and evaluate predictions using error metrics.
+
 ## Repository Structure
 
 - `data/raw/`: original dataset files stored locally
@@ -96,6 +114,66 @@ Demand forecasting, inventory simulation, the dashboard, the database, and the A
 - `src/stockpilot/`: reusable Python modules
 - `requirements.txt`: Python dependencies
 - `README.md`: project documentation
+
+## Installation
+
+### Prerequisites
+
+- Python 3.10 or later
+- Git
+- A Kaggle account to download the dataset
+
+### Setup
+
+Clone the repository and enter the project directory:
+
+```bash
+git clone https://github.com/mharouch/StockPilot.git
+cd StockPilot
+```
+
+Create a virtual environment:
+
+```bash
+python3 -m venv .venv
+```
+
+Activate the virtual environment on macOS or Linux:
+
+```bash
+source .venv/bin/activate
+```
+
+Install the required Python dependencies:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Download the dataset as described in the **Dataset Setup** section before running the analysis.
+
+## Usage
+
+Run the dataset validation script from the project root:
+
+```bash
+python src/stockpilot/data_validation.py
+```
+
+The script displays:
+
+- the first five rows
+- the dataset dimensions
+- the column names and data types
+- the covered date range
+- missing-value counts
+- duplicated-row counts
+
+The exploratory analysis is available in:
+
+`notebooks/01_initial_sales_exploration.ipynb`
+
+Open the notebook in a Jupyter-compatible editor, select the `.venv` Python environment, and run all cells in order.
 
 ## Data Policy
 
