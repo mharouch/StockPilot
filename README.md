@@ -97,6 +97,66 @@ Demand forecasting, inventory simulation, the dashboard, the database, and the A
 - `requirements.txt`: Python dependencies
 - `README.md`: project documentation
 
+## Installation
+
+### Prerequisites
+
+- Python 3.10 or later
+- Git
+- A Kaggle account to download the dataset
+
+### Setup
+
+Clone the repository and enter the project directory:
+
+```bash
+git clone https://github.com/mharouch/StockPilot.git
+cd StockPilot
+```
+
+Create a virtual environment:
+
+```bash
+python3 -m venv .venv
+```
+
+Activate the virtual environment on macOS or Linux:
+
+```bash
+source .venv/bin/activate
+```
+
+Install the required Python dependencies:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Download the dataset as described in the **Dataset Setup** section before running the analysis.
+
+## Usage
+
+Run the dataset validation script from the project root:
+
+```bash
+python src/stockpilot/data_validation.py
+```
+
+The script displays:
+
+- the first five rows
+- the dataset dimensions
+- the column names and data types
+- the covered date range
+- missing-value counts
+- duplicated-row counts
+
+The exploratory analysis is available in:
+
+`notebooks/01_initial_sales_exploration.ipynb`
+
+Open the notebook in a Jupyter-compatible editor, select the `.venv` Python environment, and run all cells in order.
+
 ## Data Policy
 
 Original dataset files remain unchanged inside `data/raw/`.
