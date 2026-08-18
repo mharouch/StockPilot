@@ -26,3 +26,19 @@ def split_sales_data(sales, test_start_date=TEST_START_DATE):
     validate_time_split(sales, train_sales, test_sales)
 
     return train_sales, test_sales
+
+
+def display_split_summary(train_sales, test_sales):
+    """Display the date ranges and dimensions of the split datasets."""
+    train_start = train_sales["date"].min().date()
+    train_end = train_sales["date"].max().date()
+    test_start = test_sales["date"].min().date()
+    test_end = test_sales["date"].max().date()
+
+    print("Training dataset:")
+    print(f"{train_sales.shape[0]} rows and {train_sales.shape[1]} columns")
+    print(f"Date range: {train_start} to {train_end}")
+
+    print("\nTest dataset:")
+    print(f"{test_sales.shape[0]} rows and {test_sales.shape[1]} columns")
+    print(f"Date range: {test_start} to {test_end}")
