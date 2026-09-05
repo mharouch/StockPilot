@@ -2,7 +2,9 @@ import unittest
 
 import pandas as pd
 
-from src.stockpilot.baseline import create_seasonal_naive_forecast
+from src.stockpilot.baseline import (
+    create_seasonal_naive_forecast,
+    calculate_forecast_metrics)
 
 
 class TestSeasonalNaiveForecast(unittest.TestCase):
@@ -77,4 +79,25 @@ class TestSeasonalNaiveForecast(unittest.TestCase):
         pd.testing.assert_frame_equal(
             test_sales,
             original_test_sales,
+        )
+
+
+class TestForecastMetrics(unittest.TestCase):
+    def test_calculates_mae_and_rmse(self):
+        forecast = pd.DataFrame(
+            {
+                "sales":[12,22,14],
+                "prediction": [10,20,10],
+            }
+        )
+
+        metrics = calculate_forecast_metrics(forecast)
+
+        self.assertAlmostEqual(
+            metrics["mae"],
+            8/3,
+        )
+        self.assertAlmostEqual(
+            metrics["rmse"],
+            8**0.5,
         )

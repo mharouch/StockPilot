@@ -35,3 +35,11 @@ def create_seasonal_naive_forecast(train_sales, test_sales):
     )
 
     return forecast.drop(columns="day_of_week")
+
+def calculate_forecast_metrics(forecast):
+    """Calculate MAE and RMSE for forecast prediction."""
+    errors = forecast["sales"] - forecast["prediction"]
+    mae = errors.abs().mean()
+    rmse = errors.pow(2).mean() ** 0.5
+
+    return {"mae": mae, "rmse": rmse}
