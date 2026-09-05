@@ -1,4 +1,6 @@
 import pandas as pd
+from src.stockpilot.data_split import split_sales_data
+from src.stockpilot.data_validation import DATA_PATH, load_sales_data
 
 
 SEASON_LENGTH = 7
@@ -43,3 +45,21 @@ def calculate_forecast_metrics(forecast):
     rmse = errors.pow(2).mean() ** 0.5
 
     return {"mae": mae, "rmse": rmse}
+
+def main():
+    sales = load_sales_data(DATA_PATH)
+    train_sales, test_sales = split_sales_data(sales)
+
+    forecast = create_seasonal_naive_forecast(
+        train_sales,
+        test_sales
+    )
+    metrics = calculate_forecast_metrics(forecast)
+
+    print("Seasonal naive baseline:")
+    print(f"Predictions: {len(forecast)}")
+    print(f"MAE: {metrics['mae']:.2f}")
+    print(f"RMSE: {metrics['rmse']:.2f}")
+
+if __name__ == "__main__":
+    main()
