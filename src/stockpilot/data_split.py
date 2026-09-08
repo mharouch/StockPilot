@@ -2,6 +2,7 @@ import pandas as pd
 
 
 TEST_START_DATE = "2017-10-01"
+VALIDATION_START_DATE = "2017-07-01"
 
 
 def validate_time_split(sales, train_sales, test_sales):
@@ -28,17 +29,20 @@ def split_sales_data(sales, test_start_date=TEST_START_DATE):
     return train_sales, test_sales
 
 
-def display_split_summary(train_sales, test_sales):
-    """Display the date ranges and dimensions of the split datasets."""
-    train_start = train_sales["date"].min().date()
-    train_end = train_sales["date"].max().date()
-    test_start = test_sales["date"].min().date()
-    test_end = test_sales["date"].max().date()
+def split_sales_for_model_selection(
+    sales,
+    validation_start_date=VALIDATION_START_DATE,
+    test_start_date=TEST_START_DATE,
+):
+    """Split sales into development, validation, and final test datasets."""
+    training_and_validation_sales, test_sales = split_sales_data(
+        sales,
+        test_start_date,
+    )
 
-    print("Training dataset:")
-    print(f"{train_sales.shape[0]} rows and {train_sales.shape[1]} columns")
-    print(f"Date range: {train_start} to {train_end}")
+    development_sales, validation_sales = split_sales_data(
+        training_and_validation_sales,
+        validation_start_date,
+    )
 
-    print("\nTest dataset:")
-    print(f"{test_sales.shape[0]} rows and {test_sales.shape[1]} columns")
-    print(f"Date range: {test_start} to {test_end}")
+    return development_sales, validation_sales, test_sales
