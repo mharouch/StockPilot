@@ -65,7 +65,7 @@ Expected files:
 - `test.csv`
 - `sample_submission.csv`
 
-Only `train.csv` is required for the first version of the project.
+Only `train.csv` is required for the current analysis and forecasting commands. Validation and final test periods are held out from this file; Kaggle's `test.csv` is not used.
 
 The raw dataset files are not committed to the Git repository. The `data/raw/` directory is reserved for local, unmodified source data.
 
@@ -104,7 +104,37 @@ These findings describe the observed sales patterns but do not explain their bus
 
 ## Project Status
 
-Version 1 is complete. The next version will introduce a time-based training and test split, establish a simple forecasting baseline, and evaluate predictions using error metrics.
+Data analysis, a seasonal naive baseline, and a histogram gradient boosting model are implemented. Inventory simulation, replenishment recommendations, the dashboard, and the API are planned.
+
+## Forecasting
+
+The seasonal naive baseline repeats the last training week's sales by store, item, and weekday. A single `HistGradientBoostingRegressor` predicts daily sales across all stores and items using store, item, weekday, month, day of year, and days since 2013-01-01. Actual sales are the training target, not an input feature.
+
+### Model selection
+
+Models were trained on 2013-01-01–2017-06-30 (821,000 rows) and compared on 2017-07-01–2017-09-30 (46,000 rows). Parameters were selected by validation MAE.
+
+| Model | `max_iter` | `max_leaf_nodes` | MAE | RMSE |
+|---|---:|---:|---:|---:|
+| Seasonal naive | — | — | 10.48 | 13.66 |
+| Gradient boosting | 100 | 31 | 6.64 | 8.66 |
+| Gradient boosting | 200 | 31 | 6.66 | 8.69 |
+| Gradient boosting (selected) | 200 | 15 | 6.57 | 8.57 |
+
+All boosting runs use `learning_rate=0.1`, `early_stopping=False`, and `random_state=42`. Store, item, weekday, and month are treated as categorical features.
+
+### Final evaluation
+
+The selected model was retrained on 2013-01-01–2017-09-30 (867,000 rows) and evaluated on 2017-10-01–2017-12-31 (46,000 rows). This test period was not used to select its parameters.
+
+| Model | MAE | RMSE |
+|---|---:|---:|
+| Seasonal naive | 12.02 | 15.92 |
+| Gradient boosting (200 iterations, 15 leaves maximum) | 5.87 | 7.59 |
+
+Compared with the baseline on the same test rows, MAE fell by 51.2% and RMSE by 52.3% (rounded scores). MAE is the mean absolute error in units sold per store-item-day; RMSE penalizes larger errors more heavily. Lower is better for both.
+
+These results cover one test quarter. They do not establish performance in other periods or measure reductions in stockouts or inventory costs.
 
 ## Repository Structure
 
@@ -112,6 +142,7 @@ Version 1 is complete. The next version will introduce a time-based training and
 - `data/processed/`: cleaned or transformed datasets
 - `notebooks/`: exploratory analysis notebooks
 - `src/stockpilot/`: reusable Python modules
+- `tests/`: automated tests
 - `requirements.txt`: Python dependencies
 - `README.md`: project documentation
 
@@ -174,6 +205,26 @@ The exploratory analysis is available in:
 `notebooks/01_initial_sales_exploration.ipynb`
 
 Open the notebook in a Jupyter-compatible editor, select the `.venv` Python environment, and run all cells in order.
+
+Compare the three model configurations on validation data:
+
+```bash
+python -m src.stockpilot.model
+```
+
+Retrain the selected configuration and compare it with the baseline on the final test period:
+
+```bash
+python -m src.stockpilot.evaluate_model
+```
+
+Both commands run from the project root and print MAE and RMSE. Models are trained in memory and are not saved.
+
+Run automated tests:
+
+```bash
+python -m unittest discover -s tests -v
+```
 
 ## Data Policy
 

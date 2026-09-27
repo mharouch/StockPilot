@@ -15,24 +15,31 @@ from src.stockpilot.data_validation import DATA_PATH, load_sales_data
 RANDOM_STATE = 42
 
 
-def create_demand_model():
-    """Create the histogram gradient boosting demand model."""
+def create_demand_model(max_iter=100, max_leaf_nodes=31):
+    """Create the demand model with configurable tree parametrs"""
     return HistGradientBoostingRegressor(
         categorical_features=CATEGORICAL_FEATURES,
         learning_rate=0.1,
-        max_iter=100,
-        max_leaf_nodes=31,
+        max_iter=max_iter,
+        max_leaf_nodes=max_leaf_nodes,
         early_stopping=False,
         random_state=RANDOM_STATE,
     )
 
 
-def train_demand_model(development_sales):
+def train_demand_model(
+    development_sales,
+    max_iter=100,
+    max_leaf_nodes=31,
+):
     """Train the demand model using development sales only."""
     features = create_calendar_features(development_sales)
     target = development_sales["sales"]
 
-    model = create_demand_model()
+    model = create_demand_model(
+        max_iter=max_iter,
+        max_leaf_nodes=max_leaf_nodes,
+    )
     model.fit(features, target)
 
     return model
@@ -47,18 +54,13 @@ def predict_demand(model, sales):
 
     return forecast
 
+
 def main():
-    """Compare the demand model and baseline on validation data."""
+    """Compare model configurations on the validation period."""
     sales = load_sales_data(DATA_PATH)
     development_sales, validation_sales, _ = (
         split_sales_for_model_selection(sales)
     )
-
-    print("Training the demand model...")
-    model = train_demand_model(development_sales)
-
-    model_forecast = predict_demand(model, validation_sales)
-    model_metrics = calculate_forecast_metrics(model_forecast)
 
     baseline_forecast = create_seasonal_naive_forecast(
         development_sales,
@@ -66,16 +68,33 @@ def main():
     )
     baseline_metrics = calculate_forecast_metrics(baseline_forecast)
 
-    print(f"Validation predictions: {len(model_forecast)}")
-
-    print("\nSeasonal naive baseline:")
+    print("Seasonal naive baseline:")
     print(f"MAE: {baseline_metrics['mae']:.2f}")
     print(f"RMSE: {baseline_metrics['rmse']:.2f}")
 
-    print("\nHistGradientBoostingRegressor:")
-    print(f"MAE: {model_metrics['mae']:.2f}")
-    print(f"RMSE: {model_metrics['rmse']:.2f}")
+    configurations = [
+        (100, 31),
+        (200, 31),
+        (200, 15),
+    ]
 
+    for max_iter, max_leaf_nodes in configurations:
+        print(
+            f"\nTraining: max_iter={max_iter}, "
+            f"max_leaf_nodes={max_leaf_nodes}"
+        )
+
+        model = train_demand_model(
+            development_sales,
+            max_iter=max_iter,
+            max_leaf_nodes=max_leaf_nodes,
+        )
+
+        forecast = predict_demand(model, validation_sales)
+        metrics = calculate_forecast_metrics(forecast)
+
+        print(f"MAE: {metrics['mae']:.2f}")
+        print(f"RMSE: {metrics['rmse']:.2f}")
 
 if __name__ == "__main__":
     main()
