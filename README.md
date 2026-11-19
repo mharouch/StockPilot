@@ -104,7 +104,17 @@ These findings describe the observed sales patterns but do not explain their bus
 
 ## Project Status
 
-Data analysis, a seasonal naive baseline, and a histogram gradient boosting model are implemented. Inventory simulation, replenishment recommendations, the dashboard, and the API are planned.
+Data analysis, demand forecasting, and an initial replenishment rule are implemented. Inventory simulation, the dashboard, the database, and the API are planned.
+
+## Replenishment
+
+Forecast demand is aggregated by store and item. The recommended quantity is calculated as:
+
+`forecast demand + safety stock - current stock - incoming stock`
+
+The forecast input is expected to cover the delivery lead time plus the ordering interval. Current stock represents available inventory, while incoming stock represents expected supplier deliveries. These stock inputs are simulated because they are not included in the original dataset.
+
+Order quantities are rounded up and cannot be negative. Customer backorders and detailed delivery schedules are not yet modeled.
 
 ## Forecasting
 
