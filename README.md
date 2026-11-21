@@ -104,7 +104,7 @@ These findings describe the observed sales patterns but do not explain their bus
 
 ## Project Status
 
-Data analysis, demand forecasting, and an initial replenishment rule are implemented. Inventory simulation, the dashboard, the database, and the API are planned.
+Data analysis, demand forecasting, an initial replenishment rule, and SQLite stock persistence are implemented. Inventory simulation, the dashboard, and the API are planned.
 
 ## Replenishment
 
@@ -115,6 +115,18 @@ Forecast demand is aggregated by store and item. The recommended quantity is cal
 The forecast input is expected to cover the delivery lead time plus the ordering interval. Current stock represents available inventory, while incoming stock represents expected supplier deliveries. These stock inputs are simulated because they are not included in the original dataset.
 
 Order quantities are rounded up and cannot be negative. Customer backorders and detailed delivery schedules are not yet modeled.
+
+## Database
+
+Stock levels are stored with SQLAlchemy in SQLite by default. Each store-item pair records current, incoming, and safety stock. The database URL can be changed with the `STOCKPILOT_DATABASE_URL` environment variable for another SQLAlchemy-compatible database.
+
+Initialize the local database from the project root:
+
+```bash
+python -m src.stockpilot.database
+```
+
+The generated `data/stockpilot.db` file remains local and is not committed.
 
 ## Forecasting
 
@@ -160,7 +172,7 @@ These results cover one test quarter. They do not establish performance in other
 
 ### Prerequisites
 
-- Python 3.10 or later
+- Python 3.11 or later
 - Git
 - A Kaggle account to download the dataset
 

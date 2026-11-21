@@ -1,9 +1,13 @@
 .DS_Store
+Icon?
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
 .env
 .venv/
+
+data/*.db
+data/*.db-*
 
 data/raw/*
 !data/raw/.gitkeep
