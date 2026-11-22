@@ -203,6 +203,14 @@ python -m src.stockpilot.evaluate_model
 
 Both commands run from the project root and print MAE and RMSE. Models are trained in memory and are not saved.
 
+To also save the final test predictions, run:
+
+```bash
+python -m src.stockpilot.evaluate_model --export-csv
+```
+
+The command writes `data/processed/forecasts.csv` with columns `date`, `store`, `item`, `actual_sales`, and `predicted_sales`. The rows cover the historical test period (October–December 2017).
+
 Run automated tests:
 
 ```bash
