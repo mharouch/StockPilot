@@ -1,21 +1,19 @@
 # StockPilot
 
-StockPilot analyzes historical sales data to support demand forecasting and inventory replenishment decisions.
+StockPilot analyzes historical retail sales and forecasts daily demand by store and item.
 
-The project focuses on a retail scenario where a store or inventory manager needs to understand demand patterns, anticipate future sales, and reduce the risk of stockouts and overstock.
+Alpha 1 is a standalone demand forecasting engine. Inventory management is planned for future versions.
 
 ## Project Objectives
 
-StockPilot is designed to progressively provide the following capabilities:
+Alpha 1 provides the following capabilities:
 
 - validate and prepare historical sales data
 - explore sales by store, item, and period
 - identify trends and seasonal patterns
 - forecast future demand
-- generate inventory replenishment recommendations
-- simulate inventory evolution
-- measure stockouts, surplus, and inventory costs
-- expose results through a dashboard and an API
+
+Stock management, replenishment recommendations, and a user interface are possible future extensions.
 
 ## Dataset
 
@@ -69,28 +67,15 @@ Only `train.csv` is required for the current analysis and forecasting commands. 
 
 The raw dataset files are not committed to the Git repository. The `data/raw/` directory is reserved for local, unmodified source data.
 
-## Version 1: Data Analysis
+## Alpha 1: Data Analysis and Forecasting
 
-The first version focuses on understanding the structure, quality, and main characteristics of the sales dataset.
+Alpha 1 covers data validation, exploratory analysis, a seasonal naive baseline, model selection, and final demand forecast evaluation.
 
-The scope includes:
+### Data analysis
 
-- load the raw sales dataset
-- inspect the available files and columns
-- verify the number of rows and columns
-- check data types
-- identify the covered date range
-- check missing values
-- check duplicated records
-- summarize sales by store, item, and date
-- create initial exploratory visualizations
-- document the main observations and data-quality issues
+The dataset is checked for structure, date range, missing values, and duplicates. The exploratory notebook examines sales by store, item, and time period, including seasonal patterns.
 
-Demand forecasting, inventory simulation, the dashboard, the database, and the API are outside the scope of Version 1.
-
-## Version 1 Results
-
-The dataset validation and exploratory analysis produced the following findings:
+The analysis produced the following findings:
 
 - the dataset contains 913,000 daily sales records covering 10 stores and 50 items from 2013 to 2017
 - no missing values or duplicated rows were identified
@@ -102,37 +87,11 @@ The dataset validation and exploratory analysis produced the following findings:
 
 These findings describe the observed sales patterns but do not explain their business causes. The missing inventory, pricing, promotion, product, and store information limits the conclusions that can be drawn from the dataset.
 
-## Project Status
-
-Data analysis, demand forecasting, an initial replenishment rule, and SQLite stock persistence are implemented. Inventory simulation, the dashboard, and the API are planned.
-
-## Replenishment
-
-Forecast demand is aggregated by store and item. The recommended quantity is calculated as:
-
-`forecast demand + safety stock - current stock - incoming stock`
-
-The forecast input is expected to cover the delivery lead time plus the ordering interval. Current stock represents available inventory, while incoming stock represents expected supplier deliveries. These stock inputs are simulated because they are not included in the original dataset.
-
-Order quantities are rounded up and cannot be negative. Customer backorders and detailed delivery schedules are not yet modeled.
-
-## Database
-
-Stock levels are stored with SQLAlchemy in SQLite by default. Each store-item pair records current, incoming, and safety stock. The database URL can be changed with the `STOCKPILOT_DATABASE_URL` environment variable for another SQLAlchemy-compatible database.
-
-Initialize the local database from the project root:
-
-```bash
-python -m src.stockpilot.database
-```
-
-The generated `data/stockpilot.db` file remains local and is not committed.
-
-## Forecasting
+### Forecasting
 
 The seasonal naive baseline repeats the last training week's sales by store, item, and weekday. A single `HistGradientBoostingRegressor` predicts daily sales across all stores and items using store, item, weekday, month, day of year, and days since 2013-01-01. Actual sales are the training target, not an input feature.
 
-### Model selection
+#### Model selection
 
 Models were trained on 2013-01-01–2017-06-30 (821,000 rows) and compared on 2017-07-01–2017-09-30 (46,000 rows). Parameters were selected by validation MAE.
 
@@ -145,7 +104,7 @@ Models were trained on 2013-01-01–2017-06-30 (821,000 rows) and compared on 20
 
 All boosting runs use `learning_rate=0.1`, `early_stopping=False`, and `random_state=42`. Store, item, weekday, and month are treated as categorical features.
 
-### Final evaluation
+#### Final evaluation
 
 The selected model was retrained on 2013-01-01–2017-09-30 (867,000 rows) and evaluated on 2017-10-01–2017-12-31 (46,000 rows). This test period was not used to select its parameters.
 
@@ -157,6 +116,8 @@ The selected model was retrained on 2013-01-01–2017-09-30 (867,000 rows) and e
 Compared with the baseline on the same test rows, MAE fell by 51.2% and RMSE by 52.3% (rounded scores). MAE is the mean absolute error in units sold per store-item-day; RMSE penalizes larger errors more heavily. Lower is better for both.
 
 These results cover one test quarter. They do not establish performance in other periods or measure reductions in stockouts or inventory costs.
+
+The tables record the original evaluation. A rerun with scikit-learn 1.9.1 and NumPy 2.4.6 produced MAE 5.84 and RMSE 7.55 for the selected model on the final test period. Dependency versions are not pinned, so small differences may occur.
 
 ## Repository Structure
 
