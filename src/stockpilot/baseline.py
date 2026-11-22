@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from src.stockpilot.data_split import split_sales_data
 from src.stockpilot.data_validation import DATA_PATH, load_sales_data
@@ -39,7 +40,16 @@ def create_seasonal_naive_forecast(train_sales, test_sales):
     return forecast.drop(columns="day_of_week")
 
 def calculate_forecast_metrics(forecast):
-    """Calculate MAE and RMSE for forecast prediction."""
+    """Calculate MAE and RMSE over complete, finite forecast rows."""
+    if forecast.empty:
+        raise ValueError("Cannot calculate metrics for an empty forecast.")
+
+    values = forecast[["sales", "prediction"]].to_numpy(
+        dtype=float, na_value=np.nan
+    )
+    if not np.isfinite(values).all():
+        raise ValueError("Actual sales and predictions must be finite and non-missing.")
+
     errors = forecast["sales"] - forecast["prediction"]
     mae = errors.abs().mean()
     rmse = errors.pow(2).mean() ** 0.5
