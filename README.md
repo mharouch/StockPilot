@@ -211,6 +211,14 @@ python -m src.stockpilot.evaluate_model --export-csv
 
 The command writes `data/processed/forecasts.csv` with columns `date`, `store`, `item`, `actual_sales`, and `predicted_sales`. The rows cover the historical test period (October–December 2017).
 
+Once `data/processed/forecasts.csv` exists, plot actual and predicted daily sales:
+
+```bash
+python -m src.stockpilot.plot_forecasts --store 1 --item 1
+```
+
+Both IDs are required. This example saves the plot to `data/processed/plots/store_1_item_1.png`.
+
 Run automated tests:
 
 ```bash
