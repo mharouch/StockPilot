@@ -101,3 +101,21 @@ class TestForecastMetrics(unittest.TestCase):
             metrics["rmse"],
             8**0.5,
         )
+
+    def test_rejects_missing_or_infinite_sales_and_predictions(self):
+        for column in ("sales", "prediction"):
+            for invalid in (float("nan"), float("inf"), float("-inf")):
+                with self.subTest(column=column, invalid=invalid):
+                    forecast = pd.DataFrame(
+                        {"sales": [12.0, 22.0], "prediction": [10.0, 20.0]}
+                    )
+                    forecast.loc[0, column] = invalid
+
+                    with self.assertRaisesRegex(ValueError, "finite and non-missing"):
+                        calculate_forecast_metrics(forecast)
+
+    def test_rejects_empty_forecast(self):
+        forecast = pd.DataFrame(columns=["sales", "prediction"])
+
+        with self.assertRaisesRegex(ValueError, "empty forecast"):
+            calculate_forecast_metrics(forecast)

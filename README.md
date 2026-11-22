@@ -1,234 +1,65 @@
 # StockPilot
 
-StockPilot analyzes historical retail sales and forecasts daily demand by store and item.
+StockPilot is a Python project for forecasting daily retail sales by store and item. Alpha 1 trains and evaluates a model on historical sales, then lets you export the test predictions and plot them alongside observed sales. Inventory management is outside the scope of this release.
 
-Alpha 1 is a standalone demand forecasting engine. Inventory management is planned for future versions.
+## Quick start
 
-## Project Objectives
-
-Alpha 1 provides the following capabilities:
-
-- validate and prepare historical sales data
-- explore sales by store, item, and period
-- identify trends and seasonal patterns
-- forecast future demand
-
-Stock management, replenishment recommendations, and a user interface are possible future extensions.
-
-## Dataset
-
-The project uses the Kaggle dataset **Store Item Demand Forecasting Challenge**.
-
-Dataset page: https://www.kaggle.com/competitions/demand-forecasting-kernels-only/data
-
-The dataset contains approximately five years of daily sales data for:
-
-- 10 stores
-- 50 items
-- approximately 913,000 sales records
-
-The main columns available in the training dataset are:
-
-- `date`: date of the sales record
-- `store`: store identifier
-- `item`: item identifier
-- `sales`: number of units sold
-
-The dataset is treated as a realistic retail sales dataset. It is not presented as certified data from a specific real-world company.
-
-## Dataset Limitations
-
-The original dataset does not contain some information commonly required for inventory management, including:
-
-- historical inventory levels
-- product prices
-- promotions
-- supplier orders
-- delivery lead times
-- storage costs
-- stockout history
-- product names and categories
-
-When required in later versions, these business variables will be simulated and clearly separated from the original sales data.
-
-## Dataset Setup
-
-Raw data files must be downloaded manually from Kaggle and placed in the following local directory:
-
-`data/raw/`
-
-Expected files:
-
-- `train.csv`
-- `test.csv`
-- `sample_submission.csv`
-
-Only `train.csv` is required for the current analysis and forecasting commands. Validation and final test periods are held out from this file; Kaggle's `test.csv` is not used.
-
-The raw dataset files are not committed to the Git repository. The `data/raw/` directory is reserved for local, unmodified source data.
-
-## Alpha 1: Data Analysis and Forecasting
-
-Alpha 1 covers data validation, exploratory analysis, a seasonal naive baseline, model selection, and final demand forecast evaluation.
-
-### Data analysis
-
-The dataset is checked for structure, date range, missing values, and duplicates. The exploratory notebook examines sales by store, item, and time period, including seasonal patterns.
-
-The analysis produced the following findings:
-
-- the dataset contains 913,000 daily sales records covering 10 stores and 50 items from 2013 to 2017
-- no missing values or duplicated rows were identified
-- Store 2 records the highest total sales, while Store 7 records the lowest
-- Items 15 and 28 record the highest total sales
-- daily sales show an overall upward trend across the five-year period
-- average sales follow a strong weekly pattern, with the lowest level on Monday and the highest on Sunday
-- average sales follow a strong annual pattern, generally increasing from January to July before declining during the second half of the year
-
-These findings describe the observed sales patterns but do not explain their business causes. The missing inventory, pricing, promotion, product, and store information limits the conclusions that can be drawn from the dataset.
-
-### Forecasting
-
-The seasonal naive baseline repeats the last training week's sales by store, item, and weekday. A single `HistGradientBoostingRegressor` predicts daily sales across all stores and items using store, item, weekday, month, day of year, and days since 2013-01-01. Actual sales are the training target, not an input feature.
-
-#### Model selection
-
-Models were trained on 2013-01-01–2017-06-30 (821,000 rows) and compared on 2017-07-01–2017-09-30 (46,000 rows). Parameters were selected by validation MAE.
-
-| Model | `max_iter` | `max_leaf_nodes` | MAE | RMSE |
-|---|---:|---:|---:|---:|
-| Seasonal naive | — | — | 10.48 | 13.66 |
-| Gradient boosting | 100 | 31 | 6.64 | 8.66 |
-| Gradient boosting | 200 | 31 | 6.66 | 8.69 |
-| Gradient boosting (selected) | 200 | 15 | 6.57 | 8.57 |
-
-All boosting runs use `learning_rate=0.1`, `early_stopping=False`, and `random_state=42`. Store, item, weekday, and month are treated as categorical features.
-
-#### Final evaluation
-
-The selected model was retrained on 2013-01-01–2017-09-30 (867,000 rows) and evaluated on 2017-10-01–2017-12-31 (46,000 rows). This test period was not used to select its parameters.
-
-| Model | MAE | RMSE |
-|---|---:|---:|
-| Seasonal naive | 12.02 | 15.92 |
-| Gradient boosting (200 iterations, 15 leaves maximum) | 5.87 | 7.59 |
-
-Compared with the baseline on the same test rows, MAE fell by 51.2% and RMSE by 52.3% (rounded scores). MAE is the mean absolute error in units sold per store-item-day; RMSE penalizes larger errors more heavily. Lower is better for both.
-
-These results cover one test quarter. They do not establish performance in other periods or measure reductions in stockouts or inventory costs.
-
-The tables record the original evaluation. A rerun with scikit-learn 1.9.1 and NumPy 2.4.6 produced MAE 5.84 and RMSE 7.55 for the selected model on the final test period. Dependency versions are not pinned, so small differences may occur.
-
-## Repository Structure
-
-- `data/raw/`: original dataset files stored locally
-- `data/processed/`: cleaned or transformed datasets
-- `notebooks/`: exploratory analysis notebooks
-- `src/stockpilot/`: reusable Python modules
-- `tests/`: automated tests
-- `requirements.txt`: Python dependencies
-- `README.md`: project documentation
-
-## Installation
-
-### Prerequisites
-
-- Python 3.11 or later
-- Git
-- A Kaggle account to download the dataset
-
-### Setup
-
-Clone the repository and enter the project directory:
+Install Git and Python 3.11 or later. In a macOS or Linux terminal, clone the repository and set up the environment:
 
 ```bash
 git clone https://github.com/mharouch/StockPilot.git
 cd StockPilot
-```
-
-Create a virtual environment:
-
-```bash
 python3 -m venv .venv
-```
-
-Activate the virtual environment on macOS or Linux:
-
-```bash
 source .venv/bin/activate
-```
-
-Install the required Python dependencies:
-
-```bash
 python -m pip install -r requirements.txt
 ```
 
-Download the dataset as described in the **Dataset Setup** section before running the analysis.
+Download `train.csv` from the [Kaggle Store Item Demand Forecasting Challenge](https://www.kaggle.com/competitions/demand-forecasting-kernels-only/data) and place it in `data/raw/`. This is the only dataset file you need. StockPilot takes its validation and test periods from that file.
 
-## Usage
-
-Run the dataset validation script from the project root:
-
-```bash
-python src/stockpilot/data_validation.py
-```
-
-The script displays:
-
-- the first five rows
-- the dataset dimensions
-- the column names and data types
-- the covered date range
-- missing-value counts
-- duplicated-row counts
-
-The exploratory analysis is available in:
-
-`notebooks/01_initial_sales_exploration.ipynb`
-
-Open the notebook in a Jupyter-compatible editor, select the `.venv` Python environment, and run all cells in order.
-
-Compare the three model configurations on validation data:
-
-```bash
-python -m src.stockpilot.model
-```
-
-Retrain the selected configuration and compare it with the baseline on the final test period:
-
-```bash
-python -m src.stockpilot.evaluate_model
-```
-
-Both commands run from the project root and print MAE and RMSE. Models are trained in memory and are not saved.
-
-To also save the final test predictions, run:
+From the repository root, run:
 
 ```bash
 python -m src.stockpilot.evaluate_model --export-csv
-```
-
-The command writes `data/processed/forecasts.csv` with columns `date`, `store`, `item`, `actual_sales`, and `predicted_sales`. The rows cover the historical test period (October–December 2017).
-
-Once `data/processed/forecasts.csv` exists, plot actual and predicted daily sales:
-
-```bash
 python -m src.stockpilot.plot_forecasts --store 1 --item 1
 ```
 
-Both IDs are required. This example saves the plot to `data/processed/plots/store_1_item_1.png`.
+The first command prints MAE and RMSE and saves `data/processed/forecasts.csv` with `date`, `store`, `item`, `actual_sales`, and `predicted_sales`. The rows cover October through December 2017, the historical test period. Run the same command without `--export-csv` to print the scores alone.
 
-Run automated tests:
+Run the plotting command after creating the CSV. Both `--store` and `--item` are required. The example saves `data/processed/plots/store_1_item_1.png`. Git ignores the raw data and generated files.
+
+## Dataset and exploration
+
+Kaggle's training file contains 913,000 daily records from January 2013 through December 2017 for 10 stores and 50 items. Its columns are `date`, `store`, `item`, and `sales` (units sold). Run `python src/stockpilot/data_validation.py` from the repository root to inspect the file's structure, date range, missing values, and duplicate rows.
+
+The [exploration notebook](notebooks/01_initial_sales_exploration.ipynb) shows an upward trend over the five years and recurring weekly and annual patterns. Average sales are lowest on Monday, highest on Sunday, and generally rise toward July before declining later in the year.
+
+Open the notebook in a Jupyter-compatible editor, select the `.venv` kernel, and run all cells in order. Set the kernel's working directory to `notebooks/`. The first cell prints the current directory, and the next cell uses its parent to find `data/raw/train.csv`.
+
+The dataset records units sold without inventory or stockout history. It cannot show how much demand went unmet. It also lacks prices and promotions, which limits what the notebook can say about the causes of sales patterns.
+
+## Model and evaluation
+
+The seasonal naive baseline repeats sales from the last training week for each store, item, and weekday. One `HistGradientBoostingRegressor` covers all stores and items. It uses store, item, weekday, month, day of year, and days since January 1, 2013. The first four are categorical features. Observed sales are the training target.
+
+The three boosting configurations were trained through June 30, 2017 (821,000 rows) and compared on July through September 2017 (46,000 rows). The lowest validation MAE came from `max_iter=200` and `max_leaf_nodes=15`. All runs used `learning_rate=0.1`, `early_stopping=False`, and `random_state=42`. Run `python -m src.stockpilot.model` to repeat the validation comparison.
+
+For the final evaluation, the selected configuration was retrained on all 867,000 rows through September 30 and scored on the 46,000 rows from October through December 2017. That quarter was held out during model selection.
+
+| Model | Validation MAE | Validation RMSE | Final test MAE | Final test RMSE |
+|---|---:|---:|---:|---:|
+| Seasonal naive | 10.48 | 13.66 | 12.02 | 15.92 |
+| Gradient boosting (100 iterations, 31 leaves) | 6.64 | 8.66 | | |
+| Gradient boosting (200 iterations, 31 leaves) | 6.66 | 8.69 | | |
+| Gradient boosting (200 iterations, 15 leaves) | 6.57 | 8.57 | 5.87 | 7.59 |
+
+MAE is the average absolute error in units sold per store, item, and day. RMSE gives more weight to larger errors. Lower values are better for both. The table records the original runs. A rerun with scikit-learn 1.9.1 and NumPy 2.4.6 gave the selected model a final test MAE of 5.84 and RMSE of 7.55. Dependency versions can affect these scores.
+
+The comparison covers one historical quarter. It leaves performance in other periods, stockout rates, and inventory costs unmeasured.
+
+## Tests
+
+From the repository root, run the tests with the virtual environment active. The tests do not require the Kaggle dataset.
 
 ```bash
 python -m unittest discover -s tests -v
 ```
-
-## Data Policy
-
-Original dataset files remain unchanged inside `data/raw/`.
-
-Processed or generated data will be stored separately inside `data/processed/`.
-
-Any simulated business data will be explicitly identified to avoid confusion with the original Kaggle dataset.
